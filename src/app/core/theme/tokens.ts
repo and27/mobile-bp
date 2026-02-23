@@ -24,7 +24,7 @@ export const radius = {
 } as const;
 
 export const typography = {
-  body: 16,
+  body: 14,
   caption: 12,
   title: 24,
 } as const;

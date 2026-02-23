@@ -144,7 +144,7 @@ describe("ProductsListScreen", () => {
     act(() => {
       jest.advanceTimersByTime(500);
     });
-    expect(screen.getByText("No results for other."));
+    expect(screen.getByText(`No results for "other".`));
     jest.useRealTimers();
   });
 });
