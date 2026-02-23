@@ -1,6 +1,11 @@
 import { Text } from "react-native";
+import { AppProviders } from "./AppProviders";
+import AppNavigator from "./AppNavigator";
 
-type Props = {};
-export const AppRoot = ({}: Props) => {
-  return <Text>AppRoute</Text>;
+export const AppRoot = () => {
+  return (
+    <AppProviders>
+      <AppNavigator />
+    </AppProviders>
+  );
 };
