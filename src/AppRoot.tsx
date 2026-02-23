@@ -1,4 +1,3 @@
-import { Text } from "react-native";
 import { AppProviders } from "./AppProviders";
 import AppNavigator from "./AppNavigator";
 
