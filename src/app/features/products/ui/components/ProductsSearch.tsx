@@ -1,15 +1,20 @@
-import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
+import { colors, radius, spacing } from "../../../../core/theme/tokens";
 
-export default function ProductsSearch() {
-  const [query, setQuery] = useState("");
-
+interface ProductsSearchProps {
+  value: string;
+  onChangeText: (input: string) => void;
+}
+export default function ProductsSearch({
+  value,
+  onChangeText,
+}: ProductsSearchProps) {
   return (
-    <View>
+    <View style={styles.container}>
       <TextInput
         placeholder="Search..."
-        value={query}
-        onChangeText={setQuery}
+        value={value}
+        onChangeText={onChangeText}
         style={styles.searchInput}
       />
     </View>
@@ -17,10 +22,13 @@ export default function ProductsSearch() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: spacing.md,
+  },
   searchInput: {
-    borderColor: "#aaa",
+    borderColor: colors.borderSubtle,
     borderWidth: 1,
-    borderRadius: 4,
-    minWidth: 200,
+    borderRadius: radius.sm,
+    padding: spacing.md,
   },
 });

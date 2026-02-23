@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { getProductsUseCase } from "../../domain/usecases/GetProductsUseCase";
 import { productsRepositoryImpl } from "../../data/products.repository";
@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../../navigation/types";
 import { colors, radius, spacing } from "../../../../core/theme/tokens";
+import ProductsSearch from "../components/ProductsSearch";
 
 type ProductsListNavProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -17,37 +18,58 @@ type ProductsListNavProp = NativeStackNavigationProp<
 
 export default function ProductsListScreen() {
   const navigation = useNavigation<ProductsListNavProp>();
+  const [query, setQuery] = useState("");
+  const [debouncedValue, setDebouncedValue] = useState("");
+  const normalizedQuery = debouncedValue.trim().toLowerCase();
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["products"],
     queryFn: () => getProductsUseCase(productsRepositoryImpl),
   });
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedValue(query);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [query]);
+
   if (isLoading) return <Text>Loading </Text>;
   if (isError) return <Text>{mapErrorToMessage(error)}</Text>;
-  const products = data ?? [];
+  const products =
+    data?.filter(
+      (product) =>
+        product.name.toLowerCase().includes(normalizedQuery) ||
+        product.id.toLowerCase().includes(normalizedQuery),
+    ) ?? [];
 
-  if (products.length === 0) {
-    return (
-      <View style={styles.stateContainer}>
-        <Text style={styles.stateText}>No products found.</Text>
-      </View>
-    );
-  }
   return (
     <View style={styles.container}>
-      <View style={styles.listContainer}>
-        <FlatList
-          data={data}
-          renderItem={({ item }) => (
-            <ProductListItem
-              item={item}
-              onPress={() =>
-                navigation.navigate("ProductsDetail", { productId: item.id })
-              }
-            />
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      </View>
+      <ProductsSearch value={query} onChangeText={setQuery} />
+      {products.length === 0 ? (
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateText}>
+            {normalizedQuery
+              ? `No results for ${debouncedValue.trim()}.`
+              : `No products found.`}
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.listContainer}>
+          <FlatList
+            data={products}
+            renderItem={({ item }) => (
+              <ProductListItem
+                item={item}
+                onPress={() =>
+                  navigation.navigate("ProductsDetail", { productId: item.id })
+                }
+              />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+        </View>
+      )}
     </View>
   );
 }

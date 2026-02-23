@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { useQuery } from "@tanstack/react-query";
 import ProductsListScreen from "./ProductsListScreen";
 
@@ -78,5 +78,73 @@ describe("ProductsListScreen", () => {
     expect(mockNavigate).toHaveBeenCalledWith("ProductsDetail", {
       productId: "p1",
     });
+  });
+
+  it("filters by name after debounce", () => {
+    jest.useFakeTimers();
+    (useQuery as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: "p1",
+          name: "Card",
+          description: "Card description",
+          logo: "https://placehold.co/120x120.png?text=P1",
+          dateRelease: "2026-01-01",
+          dateRevision: "2026-01-01",
+        },
+        {
+          id: "p2",
+          name: "Second product",
+          description: "Second description",
+          logo: "https://placehold.co/120x120.png?text=P1",
+          dateRelease: "2026-01-01",
+          dateRevision: "2026-01-01",
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+    render(<ProductsListScreen />);
+    const input = screen.getByPlaceholderText("Search...");
+    fireEvent.changeText(input, "card");
+
+    expect(screen.getByText("Card")).toBeTruthy();
+    expect(screen.getByText("Second product")).toBeTruthy();
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+    expect(screen.getByText("Card")).toBeTruthy();
+    expect(screen.queryByText("Second product")).toBeNull();
+
+    jest.useRealTimers();
+  });
+
+  it("shows no results message when query has no matches", () => {
+    jest.useFakeTimers();
+    (useQuery as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: "p1",
+          name: "Card",
+          description: "Card description",
+          logo: "https://placehold.co/120x120.png?text=P1",
+          dateRelease: "2026-01-01",
+          dateRevision: "2026-01-01",
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+    render(<ProductsListScreen />);
+    const input = screen.getByPlaceholderText("Search...");
+    fireEvent.changeText(input, "other");
+    expect(screen.getByText("Card")).toBeTruthy();
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+    expect(screen.getByText("No results for other."));
+    jest.useRealTimers();
   });
 });
