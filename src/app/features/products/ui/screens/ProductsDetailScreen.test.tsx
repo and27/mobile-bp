@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react-native";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "@react-navigation/native";
 import ProductsDetailScreen from "./ProductsDetailScreen";
-import ProductsListScreen from "./ProductsListScreen";
 
 const mockNavigate = jest.fn();
 
