@@ -18,7 +18,7 @@ jest.mock("@react-navigation/native", () => ({
 jest.mock("../components/ProductHeader", () => ({
   __esModule: true,
   default: ({ id }: { id: string }) => {
-    const { Text } = require("react-native");
+    const { Text } = jest.requireActual("react-native");
     return <Text>{`header-${id}`}</Text>;
   },
 }));
@@ -26,7 +26,7 @@ jest.mock("../components/ProductHeader", () => ({
 jest.mock("../components/ProductInfo", () => ({
   __esModule: true,
   default: ({ product }: { product: { name: string } }) => {
-    const { Text } = require("react-native");
+    const { Text } = jest.requireActual("react-native");
     return <Text>{`product-info-${product.name}`}</Text>;
   },
 }));
