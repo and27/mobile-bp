@@ -10,6 +10,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../../navigation/types";
 import { colors, radius, spacing } from "../../../../core/theme/tokens";
 import ProductsSearch from "../components/ProductsSearch";
+import ProductsCounter from "../components/ProductsCounter";
 
 type ProductsListNavProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -46,11 +47,12 @@ export default function ProductsListScreen() {
   return (
     <View style={styles.container}>
       <ProductsSearch value={query} onChangeText={setQuery} />
+      <ProductsCounter count={products.length} />
       {products.length === 0 ? (
         <View style={styles.stateContainer}>
           <Text style={styles.stateText}>
             {normalizedQuery
-              ? `No results for ${debouncedValue.trim()}.`
+              ? `No results for "${debouncedValue.trim()}".`
               : `No products found.`}
           </Text>
         </View>
