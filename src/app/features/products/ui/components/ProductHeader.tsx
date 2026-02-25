@@ -17,8 +17,6 @@ export default function ProductHeader({ id }: ProductHeaderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
     backgroundColor: colors.surface,
   },
   headerTitle: {

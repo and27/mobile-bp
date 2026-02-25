@@ -1,5 +1,23 @@
 import { Product } from "../domain/entities/Product";
 import { ProductDto } from "./product.dto";
+import dayjs from "dayjs";
+
+function normalizeDate(value: string): string {
+  const raw = value?.trim?.() ?? "";
+  if (!raw) return "";
+
+  const datePrefixMatch = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (datePrefixMatch) {
+    return datePrefixMatch[1];
+  }
+
+  const parsed = dayjs(raw);
+  if (parsed.isValid()) {
+    return parsed.format("YYYY-MM-DD");
+  }
+
+  return raw;
+}
 
 export function toDomainProduct(dto: ProductDto): Product {
   return {
@@ -7,8 +25,8 @@ export function toDomainProduct(dto: ProductDto): Product {
     name: dto.name,
     description: dto.description,
     logo: dto.logo,
-    dateRelease: dto.date_release,
-    dateRevision: dto.date_revision,
+    dateRelease: normalizeDate(dto.date_release),
+    dateRevision: normalizeDate(dto.date_revision),
   };
 }
 
@@ -18,7 +36,7 @@ export function toProductDto(product: Product): ProductDto {
     name: product.name,
     description: product.description,
     logo: product.logo,
-    date_release: product.dateRelease,
-    date_revision: product.dateRevision,
+    date_release: normalizeDate(product.dateRelease),
+    date_revision: normalizeDate(product.dateRevision),
   };
 }
