@@ -52,7 +52,7 @@ describe("ProductsDetailScreen", () => {
     });
 
     render(<ProductsDetailScreen />);
-    expect(screen.getByText("Loading product...")).toBeTruthy();
+    expect(screen.getByTestId("product-detail-skeleton")).toBeTruthy();
   });
 
   it("renders error state", () => {

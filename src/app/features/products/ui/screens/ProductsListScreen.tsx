@@ -12,6 +12,7 @@ import { RootStackParamList } from "../../../../navigation/types";
 import { colors, radius, spacing } from "../../../../core/theme/tokens";
 import ProductsSearch from "../components/ProductsSearch";
 import ProductsCounter from "../components/ProductsCounter";
+import ProductsListSkeleton from "../components/skeletons/ProductsListSkeleton";
 
 type ProductsListNavProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -40,7 +41,7 @@ export default function ProductsListScreen() {
     return () => clearTimeout(timeoutId);
   }, [query]);
 
-  if (isLoading) return <Text>Loading</Text>;
+  if (isLoading) return <ProductsListSkeleton />;
   if (isError) return <Text>{mapErrorToMessage(error)}</Text>;
 
   const products =

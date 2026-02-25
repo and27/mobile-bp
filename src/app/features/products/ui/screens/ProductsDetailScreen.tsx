@@ -11,6 +11,7 @@ import { productsRepositoryImpl } from "../../data/products.repository";
 import { mapErrorToMessage } from "../../../../core/errors/mapErrorToMessage";
 import { colors, radius, spacing } from "../../../../core/theme/tokens";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ProductDetailSkeleton from "../components/skeletons/ProductDetailSkeleton";
 
 type DetailRoute = RouteProp<RootStackParamList, "ProductsDetail">;
 type DetailNavigation = NativeStackNavigationProp<
@@ -31,12 +32,7 @@ export default function ProductsDetailScreen() {
     navigation.navigate("ProductsForm", { isEdit: true, productId });
   };
 
-  if (isLoading)
-    return (
-      <View style={styles.stateContainer}>
-        <Text style={styles.stateText}>Loading product...</Text>
-      </View>
-    );
+  if (isLoading) return <ProductDetailSkeleton />;
   if (isError)
     return (
       <View style={styles.stateContainer}>

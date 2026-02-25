@@ -13,6 +13,7 @@ import {
   useProductForm,
 } from "../hooks/useProductForm";
 import { useEditProductPrefill } from "../hooks/useEditProductPrefill";
+import ProductFormSkeleton from "../components/skeletons/ProductFormSkeleton";
 
 type ProductsFormRoute = RouteProp<RootStackParamList, "ProductsForm">;
 type ProductsFormNavigation = NativeStackNavigationProp<
@@ -58,15 +59,7 @@ export default function ProductsFormScreen() {
     reset,
   });
 
-  if (isEdit && isLoadingProducts) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.stateContainer}>
-          <Text style={styles.stateText}>Loading product...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  if (isEdit && isLoadingProducts) return <ProductFormSkeleton />;
 
   if (isEdit && isProductsError) {
     return (
