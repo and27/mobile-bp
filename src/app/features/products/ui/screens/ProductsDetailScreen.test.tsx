@@ -4,9 +4,13 @@ import { useRoute } from "@react-navigation/native";
 import ProductsDetailScreen from "./ProductsDetailScreen";
 
 const mockNavigate = jest.fn();
+const mockInvalidateQueries = jest.fn();
 
 jest.mock("@tanstack/react-query", () => ({
   useQuery: jest.fn(),
+  useQueryClient: () => ({
+    invalidateQueries: mockInvalidateQueries,
+  }),
 }));
 
 jest.mock("@react-navigation/native", () => ({

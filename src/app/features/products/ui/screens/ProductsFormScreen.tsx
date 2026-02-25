@@ -29,7 +29,10 @@ export default function ProductsFormScreen() {
 
   const handleSubmitSuccess = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["products"] });
-    navigation.navigate("ProductsList");
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "ProductsList" }],
+    });
   }, [navigation, queryClient]);
 
   const {
