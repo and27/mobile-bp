@@ -2,23 +2,34 @@ import React from "react";
 import { Text, View, StyleSheet, Pressable } from "react-native";
 import ProductHeader from "../components/ProductHeader";
 import ProductInfo from "../components/ProductInfo";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../../../../navigation/types";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
 import { getProductsUseCase } from "../../domain/usecases/GetProductsUseCase";
 import { productsRepositoryImpl } from "../../data/products.repository";
 import { mapErrorToMessage } from "../../../../core/errors/mapErrorToMessage";
 import { colors, radius, spacing } from "../../../../core/theme/tokens";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type DetailRoute = RouteProp<RootStackParamList, "ProductsDetail">;
+type DetailNavigation = NativeStackNavigationProp<
+  RootStackParamList,
+  "ProductsDetail"
+>;
 
 export default function ProductsDetailScreen() {
   const route = useRoute<DetailRoute>();
+  const navigation = useNavigation<DetailNavigation>();
   const { productId } = route.params;
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["products"],
     queryFn: () => getProductsUseCase(productsRepositoryImpl),
   });
+
+  const handleEdit = () => {
+    navigation.navigate("ProductsForm", { isEdit: true, productId });
+  };
 
   if (isLoading)
     return (
@@ -43,29 +54,35 @@ export default function ProductsDetailScreen() {
     );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <ProductHeader id={productId} />
-        <ProductInfo product={product} />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <ProductHeader id={productId} />
+          <ProductInfo product={product} />
+        </View>
+        <View style={styles.btnContainer}>
+          <Pressable style={styles.editBtn} onPress={handleEdit}>
+            <Text style={styles.editBtnText}>Edit</Text>
+          </Pressable>
+          <Pressable style={styles.deleteBtn}>
+            <Text style={styles.deleteBtnText}>Delete</Text>
+          </Pressable>
+        </View>
       </View>
-      <View style={styles.btnContainer}>
-        <Pressable style={styles.editBtn}>
-          <Text style={styles.editBtnText}>Edit</Text>
-        </Pressable>
-        <Pressable style={styles.deleteBtn}>
-          <Text style={styles.deleteBtnText}>Delete</Text>
-        </Pressable>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.lg,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.surface,
     justifyContent: "space-between",
-    padding: spacing.lg,
   },
   stateContainer: {
     flex: 1,

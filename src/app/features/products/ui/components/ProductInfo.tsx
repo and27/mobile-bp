@@ -50,7 +50,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.sm,
     paddingVertical: spacing.lg,
     gap: spacing.md,
     backgroundColor: colors.surface,

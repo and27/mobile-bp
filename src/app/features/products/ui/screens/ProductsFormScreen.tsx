@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
   colors,
@@ -18,10 +18,11 @@ import {
   ProductFormValues,
 } from "../../validation/productForm.schema";
 import { productsRepositoryImpl } from "../../data/products.repository";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { mapErrorToMessage } from "../../../../core/errors/mapErrorToMessage";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { getProductsUseCase } from "../../domain/usecases/GetProductsUseCase";
 
 dayjs.extend(customParseFormat);
 
@@ -44,7 +45,8 @@ export default function ProductsFormScreen() {
   const route = useRoute<ProductsFormRoute>();
   const navigation = useNavigation<ProductsFormNavigation>();
   const queryClient = useQueryClient();
-  const { isEdit } = route.params;
+  const { isEdit, productId } = route.params;
+  const hasPrefilledEditValues = useRef(false);
   const {
     control,
     reset,
@@ -61,6 +63,37 @@ export default function ProductsFormScreen() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const dateReleaseValue = watch("dateRelease");
+  const {
+    data: productsData,
+    isLoading: isLoadingProducts,
+    isError: isProductsError,
+    error: productsError,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => getProductsUseCase(productsRepositoryImpl),
+    enabled: isEdit,
+  });
+  const productToEdit = (productsData ?? []).find(
+    (product) => product.id === productId,
+  );
+
+  useEffect(() => {
+    hasPrefilledEditValues.current = false;
+  }, [productId]);
+
+  useEffect(() => {
+    if (!isEdit || !productToEdit || hasPrefilledEditValues.current) return;
+
+    reset({
+      id: productToEdit.id,
+      name: productToEdit.name,
+      description: productToEdit.description,
+      logo: productToEdit.logo,
+      dateRelease: productToEdit.dateRelease,
+      dateRevision: productToEdit.dateRevision,
+    });
+    hasPrefilledEditValues.current = true;
+  }, [isEdit, productToEdit, reset]);
 
   useEffect(() => {
     const release = dayjs(dateReleaseValue, "YYYY-MM-DD", true);
@@ -98,6 +131,17 @@ export default function ProductsFormScreen() {
         dateRevision: values.dateRevision.trim(),
       };
 
+      if (isEdit && productId) {
+        await productsRepositoryImpl.updateProduct(productId, {
+          name: normalizedValues.name,
+          description: normalizedValues.description,
+          logo: normalizedValues.logo,
+          dateRelease: normalizedValues.dateRelease,
+          dateRevision: normalizedValues.dateRevision,
+        });
+        setSubmitSuccess("Product updated successfully.");
+      }
+
       if (!isEdit) {
         const idAlreadyExists = await productsRepositoryImpl.verifyProductId(
           normalizedValues.id,
@@ -121,6 +165,38 @@ export default function ProductsFormScreen() {
       setSubmitError(mapErrorToMessage(error));
     }
   };
+
+  if (isEdit && isLoadingProducts) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateText}>Loading product...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (isEdit && isProductsError) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateText}>
+            {mapErrorToMessage(productsError)}
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (isEdit && !productToEdit) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateText}>Product not found.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -320,6 +396,15 @@ const styles = StyleSheet.create({
   actions: {
     marginTop: spacing.xl,
     gap: spacing.sm,
+  },
+  stateContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.lg,
+  },
+  stateText: {
+    color: colors.textSecondary,
   },
   primaryBtn: {
     borderRadius: radius.md,
