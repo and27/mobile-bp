@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Text, View, StyleSheet, Pressable } from "react-native";
 import { Product } from "../../domain/entities/Product";
 import {
@@ -12,7 +12,7 @@ interface Props {
   item: Product;
   onPress: () => void;
 }
-export default function ProductListItem({ item, onPress }: Props) {
+function ProductListItem({ item, onPress }: Props) {
   return (
     <Pressable
       style={({ pressed }) => [
@@ -29,6 +29,8 @@ export default function ProductListItem({ item, onPress }: Props) {
     </Pressable>
   );
 }
+
+export default memo(ProductListItem);
 
 const styles = StyleSheet.create({
   container: {

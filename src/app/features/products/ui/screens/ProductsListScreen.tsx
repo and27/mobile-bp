@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getProductsUseCase } from "../../domain/usecases/GetProductsUseCase";
@@ -13,6 +13,7 @@ import { colors, radius, spacing } from "../../../../core/theme/tokens";
 import ProductsSearch from "../components/ProductsSearch";
 import ProductsCounter from "../components/ProductsCounter";
 import ProductsListSkeleton from "../components/skeletons/ProductsListSkeleton";
+import { Product } from "../../domain/entities/Product";
 
 type ProductsListNavProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -30,9 +31,25 @@ export default function ProductsListScreen() {
     queryFn: () => getProductsUseCase(productsRepositoryImpl),
   });
 
-  const handleAddModal = () => {
+  const handleAddModal = useCallback(() => {
     navigation.navigate("ProductsForm", { isEdit: false });
-  };
+  }, [navigation]);
+
+  const handleOpenDetail = useCallback(
+    (productId: string) => {
+      navigation.navigate("ProductsDetail", { productId });
+    },
+    [navigation],
+  );
+
+  const keyExtractor = useCallback((item: Product) => item.id, []);
+
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => (
+      <ProductListItem item={item} onPress={() => handleOpenDetail(item.id)} />
+    ),
+    [handleOpenDetail],
+  );
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -41,15 +58,18 @@ export default function ProductsListScreen() {
     return () => clearTimeout(timeoutId);
   }, [query]);
 
+  const products = useMemo(
+    () =>
+      data?.filter(
+        (product) =>
+          product.name.toLowerCase().includes(normalizedQuery) ||
+          product.id.toLowerCase().includes(normalizedQuery),
+      ) ?? [],
+    [data, normalizedQuery],
+  );
+
   if (isLoading) return <ProductsListSkeleton />;
   if (isError) return <Text>{mapErrorToMessage(error)}</Text>;
-
-  const products =
-    data?.filter(
-      (product) =>
-        product.name.toLowerCase().includes(normalizedQuery) ||
-        product.id.toLowerCase().includes(normalizedQuery),
-    ) ?? [];
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -68,18 +88,13 @@ export default function ProductsListScreen() {
           <View style={styles.listContainer}>
             <FlatList
               data={products}
-              renderItem={({ item }) => (
-                <ProductListItem
-                  item={item}
-                  onPress={() =>
-                    navigation.navigate("ProductsDetail", {
-                      productId: item.id,
-                    })
-                  }
-                />
-              )}
-              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
               contentContainerStyle={styles.listContent}
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              windowSize={7}
+              removeClippedSubviews
             />
           </View>
         )}
