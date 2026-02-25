@@ -5,6 +5,8 @@ export const colors = {
   textPrimary: "#111827",
   textSecondary: "#6b7280",
   iconMuted: "#9ca3af",
+  actionPrimary: "#ffdd00",
+  actionSecondary: "#e9ecf3",
   danger: "#dc2626",
   onDanger: "#ffffff",
 } as const;

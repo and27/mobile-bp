@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     borderRadius: radius.md,
-    backgroundColor: colors.borderSubtle,
+    backgroundColor: colors.actionSecondary,
     padding: spacing.md,
   },
   deleteBtn: {
