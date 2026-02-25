@@ -40,9 +40,6 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           source={{ uri: logoUri }}
           style={styles.logo}
           resizeMode="contain"
-          onError={(e) =>
-            console.log("Logo load error:", e.nativeEvent, logoUri)
-          }
         />
       </View>
       <ProductInfoItem title="Release date" value={product.dateRelease} />

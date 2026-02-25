@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProductsListScreen from "./app/features/products/ui/screens/ProductsListScreen";
 import { RootStackParamList } from "./app/navigation/types";
 import ProductsDetailScreen from "./app/features/products/ui/screens/ProductsDetailScreen";
+import ProductsFormScreen from "./app/features/products/ui/screens/ProductsFormScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -18,6 +19,13 @@ const AppNavigator = () => {
         <Stack.Screen
           name="ProductsDetail"
           component={ProductsDetailScreen}
+          options={{
+            title: "Banco",
+          }}
+        />
+        <Stack.Screen
+          name="ProductsForm"
+          component={ProductsFormScreen}
           options={{
             title: "Banco",
           }}
