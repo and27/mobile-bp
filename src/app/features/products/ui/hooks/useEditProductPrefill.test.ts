@@ -67,7 +67,7 @@ describe("useEditProductPrefill", () => {
     });
 
     const { rerender } = renderHook(
-      ({ productId }) =>
+      ({ productId }: { productId: string }) =>
         useEditProductPrefill({
           isEdit: true,
           productId,
